@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <link href="https://cdn.bootcss.com/twitter-bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.bootcss.com/bootstrap-table/1.15.4/bootstrap-table.min.css" rel="stylesheet">
+
+    <script src="https://cdn.bootcss.com/jquery/1.12.4/jquery.min.js"></script>
+    <!-- <script src="https://cdn.bootcss.com/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script> -->
+    <script src="https://cdn.bootcss.com/bootstrap-table/1.15.4/bootstrap-table.min.js"></script>
+    <style>
+    body, div, p, ul,li, ol, h1{
+        margin: 0;
+        padding: 0;
+    }
+    .content {
+        width: 1200px;
+        min-height: 800px;
+        margin: 0 auto;
+        background-color: #f5f5f5;
+        /* background-color: rgba(red, green, blue, alpha); */
+    }
+    .header {
+        text-align: center;
+    }
+    .form {
+        margin-top: 100px;
+        padding: 20px 10px;
+    }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="row header">
+            <h1>购票系统</h1>
+        </div>
+        <div class="row form">
+            <form class="form-horizontal" onsubmit="return false">
+                <div class="form-group">
+                    <label class="col-sm-2 control-label" for="cname">用户名：</label>
+                    <div class="col-sm-6">
+                        <input type="text" class="col-sm-6 form-control" id="cname" placeholder="用户名">
+                    </div>
+                </div>
+                
+                <div class="form-group" id="buttonGroup">
+                    <label class="col-sm-2 control-label" for="cname">购票数：</label>
+                    <div class="col-sm-6">
+                        <button class="btn btn-default" value="1">1张</button>
+                        <button class="btn btn-default" value="2">2张</button>
+                        <button class="btn btn-default" value="3">3张</button>
+                        <button class="btn btn-default" value="4">4张</button>
+                        <button class="btn btn-default btn-primary" value="5">5张</button>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="col-sm-6 col-sm-offset-2">
+                        <button class="btn btn-success" id="submitOrder">购票</button>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="" class="col-sm-2 control-label">剩余票数：</label>
+                    <div class="col-sm-6">
+                        <p id="remains"></p>
+                    </div>
+                </div>
+            </form>
+            <div class="alert alert-danger" role="alert" id="errorMessage"></div>
+            <div class="alert alert-success" id="successTicket"></div>
+            <div class="row">
+                <table class="table table-striped" id="orderHistory">
+                </table>
+            </div>
+        </div>
+    </div>
+    <script type="text/javascript" src="core.js" defer></script>
+    <script type="text/javascript" src="index.js" defer></script>
+</body>
+</html>
