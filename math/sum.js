@@ -5,7 +5,7 @@
  * @param {*} b 
  * @param {*} format: boolean，是否格式化返回值
  */
-function sum(a, b, format) {
+function hugeSum(a, b, format) {
     var big, sm, point = 0, diff, byteSum, result = [];
     a = String(a)
     b = String(b)
@@ -34,7 +34,7 @@ function sum(a, b, format) {
     return format ? result.join('').replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,') : result.join('');
 }
 
-function multi(a, b) {
+function hugeMultiple(a, b) {
     var n1 = String(a)
     var n2 = String(b)
     var len1 = n1.length
@@ -63,12 +63,12 @@ function sumApply(list) {
     }
     let res = factor.reduce((a,b,c) => {
         // console.log(a, b, c)
-        return sum.call(this, a, b, false)
+        return hugeSum.call(this, a, b, false)
     }, 0)
     return res
 }
 
 var add = sumApply("11111111111", "222222", "33333");
 console.log(add);
-var s = multi("1001", "1001", true);
+var s = hugeMultiple("1001", "1001", true);
 console.log(s);

@@ -1,10 +1,11 @@
 function Store(options = {}) {
     this.defaultOptions = {
         init: false,                // 是否初始化票务
-        blockNum: 4,                // 区域数量小于等于26个
+        blockNum: 4,                // 区域数量小于等于26个, TODO 超过26个考虑使用AA,AB,AC类似的命名,可支持26*26个区域
         firstRowSeats: 50,          // 第一排座位数
         lastRowSeats: 100,          // 最后一排座位数
         incrementEachRow: 2,        // 每排增加座位数
+        maxOrderTickets: 5,         // 单次最大购票数量
     }
     this.blockList = []             // 区域码A，B，C，D，E...
     this.ticketPool = []            // 所有票的总池子
@@ -14,8 +15,16 @@ function Store(options = {}) {
     this.rowsAmount = (this.options.lastRowSeats - this.options.firstRowSeats) / 2 + 1        // 假定为整数  26排
 
     let i = 0;
-    while(i++ < this.options.blockNum) {
-        this.blockList.push(String.fromCharCode(64+i))
+    let needsDouble = this.options.blockNum > 26;
+    while(i < this.options.blockNum) {
+        if(needsDouble) {
+            // 双位
+            let code = String.fromCharCode(65+i/26) + String.fromCharCode(65+i%26)
+            this.blockList.push(code)
+        } else {
+            this.blockList.push(String.fromCharCode(65+i))
+        }
+        i++;
     }
     if(this.options.init) {
         this.initTicketPool()
@@ -30,7 +39,7 @@ Store.prototype.ERROR_MAPS = {
  * 初始化门票池子
  */
 Store.prototype.initTicketPool = function() {
-    // ABCD区域座位
+    // 区域座位
     this.blockList.forEach((block, index) => {
         for (let i = 1; i < this.rowsAmount+1; i++) {
             for (let j = 1; j < this.options.firstRowSeats + 1 + this.options.incrementEachRow * (i-1); j++) {
@@ -46,7 +55,7 @@ Store.prototype.initTicketPool = function() {
  * @param {客户购票数量， 检查1-5} num , 默认一张票
  */
 Store.prototype.buyTicket = function(num = 1) {
-    if(parseInt(num) > 5 || parseInt(num) < 1) return this.ERROR_MAPS.TICKET_NUM_ILLEGAL;
+    if(parseInt(num) > this.options.maxOrderTickets || parseInt(num) < 1) return this.ERROR_MAPS.TICKET_NUM_ILLEGAL;
 
     if(this.remainTicketPool.length < num) return this.ERROR_MAPS.REMAIN_TICKET_DEFICIT;
 
