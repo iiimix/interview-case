@@ -17,5 +17,9 @@ testSmartCost(num, debug)
 - 本地已经安装node环境
 - 执行node server.js命令启动服务
 
+- 利用worker多线程分段计算
 testMultiWorkerCost(num, debug)
 参数同上
+
+- 缓存1e4倍数的阶乘结果，快速计算余数部分的阶乘
+testWorkerCacheCost(num, debug)

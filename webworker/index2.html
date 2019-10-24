@@ -20,13 +20,13 @@
     <p><a href="/index2.html">方案二</a></p>
     <ol>
         <li>
-            <h3><a herf="/index1.html" onclick="window.location='/index1.html'">原始方法，递归调用</a></h3>
+            <h3>原始方法，递归调用</h3>
             <p>实验方法：控制台调用函数testOriginCost(1000)</p>
             <p>优点：耗时较少，30ms以内出结果</p>
             <p>缺点：超过11377，函数调用栈即超出内存限制了</p>
         </li>
         <li>
-            <h3><a herf="/index1.html" onclick="window.location='/index1.html'">分段计算，并缓存阶段乘积结果</a></h3>
+            <h3>分段计算，并缓存阶段乘积结果</h3>
             <p>实验方法：控制台调用函数testSmartCost(10000)</p>
             <ol>优点
                 <li>支持计算10w-100w级别数阶乘</li>
@@ -38,7 +38,7 @@
             </ol>
         </li>
         <li>
-            <h3><a herf="/index2.html" onclick="window.location='/index2.html'">利用worker多线程处理计算</a></h3>
+            <h3>利用worker多线程处理计算</h3>
             <p>实验方法：控制台调用函数testMultiWorkerCost(10000)</p>
             <ol>优点
                 <li>支持计算10w-1000w级别数阶乘</li>
@@ -49,7 +49,24 @@
             </ol>
         </li>
         <li>
-            <h3>(待实现)worker多线程方案加上cache缓存机制</h3>
+            <h3>worker多线程方案加上cache二级缓存机制</h3>
+            <p>实验方法：控制台调用函数testWorkerCacheCost(1000000)</p>
+            <ol>优点
+                <li>支持计算1-1000w级别数阶乘</li>
+                <li>利用二级缓存，存储了1w倍数的阶乘结果，在递增的阶乘计算中，只需要计算余数部分的缓存，性能提升显著</li>
+            </ol>
+            <ol>缺点
+                <li>非多次递增求阶乘时，耗时严重（比如：直接求100w的阶乘，耗时超过1分钟，必须做缓存预处理）</li>
+            </ol>
+        </li>
+        <li>
+            <h3>worker多线程方案加上cache三级缓存机制（待实现）</h3>
+            <p>实验方法：控制台调用函数testWorkerTripleCacheCost(1000000)</p>
+            <ol>思路
+                <li>一级缓存cacheList存储了从1开始，每10000个自然数乘积结果，如：cacheList[0]:1-10000的乘积，cacheList[1]:10001-20000的乘积...</li>
+                <li>二级缓存cacheMap存储了1w的整数倍的阶乘结果。 cacheMap[1]: 10000的阶乘，cacheMao[2]: 20000的阶乘...</li>
+                <li>三级缓存：存储尾数的乘积结果。比如：前一次计算了100400的阶乘，10w的阶乘已经缓存，再把100001-100400的乘积缓存起来，下次计算101000阶乘时，只需要计算100401-101000的乘积。</li>
+            </ol>
         </li>
     </ol>
 </body>

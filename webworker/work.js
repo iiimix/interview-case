@@ -8,7 +8,7 @@
  */
 onmessage = function(ev) {
     let {n, m} = ev.data;
-    // console.log(n,m)
+    console.log(n,m)
     let s = BigInt(1);
     for (let i = n; i < m+1; i++) {
         s *= BigInt(i)

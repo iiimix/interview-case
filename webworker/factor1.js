@@ -59,7 +59,7 @@ function smartFactor(n) {
     }
     let remains = BigInt(1);
     if(remainIndex > 0) {
-        remains = rangePower(rangeNum*1e4+remainIndex+1, origin)
+        remains = rangePower(rangeNum*1e4+1, origin)
     }
 
     // 计算1-n的乘积
