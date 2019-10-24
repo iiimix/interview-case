@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>测试页面</title>
+    <script src="factor1.js"></script>
+    <style>
+        /* h3 a {
+            color:blue;
+            text-decoration: underline;
+            cursor: pointer;
+        } */
+    </style>
+</head>
+<body>
+    <h1>大数阶乘问题</h1>
+    <p><a href="/index1.html">方案一</a></p>
+    <p><a href="/index2.html">方案二</a></p>
+    <ol>
+        <li>
+            <h3><a herf="/index1.html" onclick="window.location='/index1.html'">原始方法，递归调用</a></h3>
+            <p>实验方法：控制台调用函数testOriginCost(1000)</p>
+            <p>优点：耗时较少，30ms以内出结果</p>
+            <p>缺点：超过11377，函数调用栈即超出内存限制了</p>
+        </li>
+        <li>
+            <h3><a herf="/index1.html" onclick="window.location='/index1.html'">分段计算，并缓存阶段乘积结果</a></h3>
+            <p>实验方法：控制台调用函数testSmartCost(10000)</p>
+            <ol>优点
+                <li>支持计算10w-100w级别数阶乘</li>
+                <li>连续递增计算阶乘，利用缓存可以快速得出结果</li>
+            </ol>
+            <ol>缺点
+                <li>计算耗时随着量级增加和倍增</li>
+                <li>分段计算不能并行处理</li>
+            </ol>
+        </li>
+        <!-- <li>
+            <h3><a herf="/index2.html" onclick="window.location='/index2.html'">利用worker多线程处理计算</a></h3>
+            <p>实验方法：控制台调用函数testMultiWorkerCost(10000)</p>
+            <ol>优点
+                <li>支持计算10w-1000w级别数阶乘</li>
+                <li>利用多线程分段计算乘积，性能表现优于方案二</li>
+            </ol>
+            <ol>缺点
+                <li>重复计算量很大，未能实现缓存</li>
+            </ol>
+        </li>
+        <li>
+            <h3>(待实现)worker多线程方案加上cache缓存机制</h3>
+        </li> -->
+    </ol>
+</body>
+</html>
