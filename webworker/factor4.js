@@ -1,55 +1,3 @@
-/*
-
-思路：
-设定函数
-F(n) = n * (n-1) * (n-2)* ... * 1               // 即阶乘函数
-T(n) = n * (n-2) * (n-4) * ... * (2 or 1)       // 减2的阶乘
-Power(n, exp) = n ^ exp                         // 幂函数
-
-得出等式：奇数和偶数的阶乘化简式
-(2k)!  = F(2k)   = Power(2, k) * F(k) * T(2k-1)
-(2k+1)! =F(2k+1) = Power(2, k) * F(k) * T(2k+1)
-
-例如：
-F(1000) = Power(2, 500) * T(999) * F(500) 
-        = Power(2, 750) * T(999) * T(499) * F(250)
-        = Power(2, 875) * T(999) * T(499) * T(249) * F(125)
-        = Power(2, 937) * T(999) * T(499) * T(249) * T(125) * F(62)
-        = Power(2, 968) * T(999) * T(499) * T(249) * T(125) * F(61) * F(31)
-        = Power(2, 983) * T(999) * T(499) * T(249) * T(125) * F(61) * F(31) * F(15)
-        ...
-
-设：n,m为奇数，0 <= m <= n
-P(n, m) = n * (n-2) * ...* (m+2)
-T(n) = P(n, -1) = P(n, m) * P(m, -1)
-
-则
-T(999) = P(999, 499) * P(499, 249) * P(249, 125) * P(125, 61) * P(61, 31) * T(31)
-T(499) =               p(499, 249) * P(249, 125) * P(125, 61) * P(61, 31) * T(31)
-T(249) =                             P(249, 125) * P(125, 61) * P(61, 31) * T(31)
-T(125) =                                           P(125, 61) * P(61, 31) * T(31)
-T(61)  =                                                        P(61, 31) * T(31)
-T(31)  =                                                                    T(31)
-
-
-F(1000) = F(15) * Power(2, 983) * P(999, 499) * P(499, 249)^2 * P(249, 125)^3 * P(125, 61)^4 * P(61, 31)^5 * T(31)^6
-
-例如：
-F(100)  = T(99) * F(50) * power(50)
-        = T(99) * T(49) * F(25) * power(50+25)
-        = T(99) * T(49) * T(25) * F(12) * power(50+25+12)
-        = T(99) * T(49) * T(25) * T(11) * F(6) * power(50+25+12+6)
-        = T(99) * T(49) * T(25) * T(11) * T(5) * F(3) * power(50+25+12+6+3)
-        = Tmap([99,49,25,11,5]) * F(3) * power(2, 96)
-
-F(133)  = T(133) * F(66) * power(66)
-        = T(133) * T(65) * F(33) * power(66+33)
-        = T(133) * T(65) * T(33) * F(16) * power(66+33+16)
-        = T(133) * T(65) * T(33) * T(15) * F(8) * power(66+33+16+8)
-        = Tmap([133,65,33,15]) * F(8) * power(2, 123)
-
-*/
-
 const F_CONST = {
     1: 1n,
     2: 2n,
@@ -72,15 +20,8 @@ const F_CONST = {
     19: 121645100408832000n,
     20: 2432902008176640000n
 }
-/**
- * 
- * @param {正整数} n 
- * return n的阶乘
- */
-// 得出等式：奇数和偶数的阶乘化简式
-// (2k)!  = F(2k)   = Power(2, k) * F(k) * T(2k-1)
-// (2k+1)! =F(2k+1) = Power(2, k) * F(k) * T(2k+1)
-function F(n, debug) {
+
+async function F(n, debug) {
     let result = {
         power: 0,
         TList: [],
@@ -90,19 +31,9 @@ function F(n, debug) {
     FF(n, result)
     let end = new Date().getTime()
     debug && console.log('FF耗时：' + (end-start))
-    return Power(2, result.power, debug) * optimizeTMap(result.TList) * result.FTail       // TMap优化方案
-    // return Power(2, result.power, debug) * TMap(result.TList) * result.FTail            // TMap原始方案
+    return Power(2, result.power, debug) * await multiWorkerTMap(result.TList) * result.FTail       // TMap优化方案
 }
 
-/**
- * 
- * @param {*} n 
- * return {
- *      power: num,
- *      TList: [],
- *      FTail: f
- * }
- */
 function FF(n, result) {
     // 如果存在最小，则直接返回
     if(F_CONST[n]) {
@@ -160,11 +91,7 @@ let P_CACHE = {}
 /**
  * 
  * @param n 为奇数
- * return n * (n-2) * (n-4) * ... * (2 or 1)
- * 
- *      设：n,m为奇数，0 <= m <= n
- *      P(n, m) = n * (n-2) * ...* (m+2)
- *      T(n) = P(n, -1) = P(n, m) * P(m, -1)
+ * @return n * (n-2) * (n-4) * ... * (m + 2)
  * 
  */
 function P(n, m) {
@@ -181,6 +108,35 @@ function P(n, m) {
     return base;
 }
 
+
+function workerP(n, m) {
+    return new Promise((resolve, reject) => {
+        resolve()
+    })
+}
+
+/**
+ * 
+ * @param {*} n 
+ * @param {*} exp 
+ */
+
+function promiseT(n, exp) {
+
+}
+
+/**
+ * 
+ * @param {*} n 
+ * @param {*} m 
+ * @param {*} exp 
+ * 
+ * @return [n * (n-2) * (n-4) * ... * (m+2)]^exp
+ * 
+ */
+function promiseP(n, m, exp) {
+    
+}
 
 /**
  * list中的每一个数都调用函数T，返回调用结果的乘积
@@ -223,7 +179,9 @@ function optimizeTMap(list) {
     let start = new Date().getTime()
     let cursor = list.length-1;
     let res = list.map((v, index, o) => {
+        // 最后一项，直接求T(v)的长度次方
         if(index === cursor) return Power(T(v), index + 1)
+        // 其他项求P(n, m)
         return Power(P(v, o[index+1]), index + 1)
     }).reduce((pre, current) => pre * current, 1n)
     let end = new Date().getTime()
@@ -231,10 +189,44 @@ function optimizeTMap(list) {
     return res
 }
 
+/**
+ * 
+ * @param {*} list 
+ * 使用worker多线程计算大数P
+ */
+function multiWorkerTMap(list) {
+    let start = new Date().getTime()
+    let cursor = list.length-1;
+    let temp = [];
+    let promiseList = []
+    for (let i = 0; i < list.length; i++) {
+        let promise
+        if(index === cursor) {
+            // 最后一项，直接求T(v)的长度次方
+            // Power(T(v), index + 1)
+            promise = promiseT(v, index + 1)
+        } else {
+            // 其他项求P(n, m)
+            promise = promiseP(v, o[index+1], index + 1)
+        }
+        promiseList.push(promise)
+        
+        
+    }
+    return new Promise((resolve, reject) => {
+        Promise.all(promiseList).then(list => {
+            let result = list.reduce((pre, current) => pre * current, 1n)
+            let end = new Date().getTime()
+            debug && console.log('multiWorkerTMap耗时：' + (end-start))
+            resolve(result)
+        })
+    })
+}
 
-function testFastFactor(n, debug) {
+
+async function testWorkerFastFactor(n, debug) {
     let start1 = new Date().getTime()
-    let result2 = F(n, true);
+    let result2 = await F(n, true);
     let start2 = new Date().getTime()
     if(debug) {
         let s = result2.toString();
@@ -246,3 +238,20 @@ function testFastFactor(n, debug) {
     console.log(n+'的阶乘计算耗时 ' + (start2 - start1) + ' ms')
 }
 
+
+function sum(n) {
+    return new Promise(resolve => {
+        setTimeout(resolve(n+1), 100)
+    })
+}
+async function sub() {
+    let list = [1,2,3,4];
+    let res = list.map(async (v, index) => {
+
+        let a = await sum(v);
+        console.log('finish sum: ' + index)
+        return a * a
+    })
+    console.log('finish map')
+    return res;
+}
