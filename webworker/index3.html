@@ -12,6 +12,13 @@
                 text-decoration: underline;
                 cursor: pointer;
             } */
+            
+            pre {
+                font-size: 16px;
+            }
+            i {
+                color: blue;
+            }
         </style>
 </head>
 <body>
@@ -19,9 +26,132 @@
     <p><a href="/index1.html">方案一</a></p>
     <p><a href="/index2.html">方案二</a></p>
     <p><a href="/index3.html">方案三</a></p>
+    <p><a href="/index4.html">方案四</a></p>
     <ol>
         <li>
-            <h3>等价化简</h3>
+            <h3>阶乘等价化简，减少乘法计算次数</h3>
+            <pre style="font-size: 18px;">
+<h2>思路：</h2>
+<b>设定函数：</b>
+F(n) = n * (n-1) * (n-2) * ... * 1              // 即阶乘函数
+T(n) = n * (n-2) * (n-4) * ... * (2 or 1)       // 减2的阶乘
+Power(n, exp) = n ^ exp                         // 幂函数
+
+<b>得出等式：奇数和偶数的阶乘化简式</b>
+(2k)!  = F(2k)   = Power(2, k) * F(k) * T(2k-1)
+(2k+1)! =F(2k+1) = Power(2, k) * F(k) * T(2k+1)
+
+<b>例如：</b>
+F(1000) = Power(2, 500) * T(999) * F(500) 
+        = Power(2, 750) * T(999) * T(499) * F(250)
+        = Power(2, 875) * T(999) * T(499) * T(249) * F(125)
+        = Power(2, 937) * T(999) * T(499) * T(249) * T(125) * F(62)
+        = Power(2, 968) * T(999) * T(499) * T(249) * T(125) * F(61) * F(31)
+        = Power(2, 983) * T(999) * T(499) * T(249) * T(125) * F(61) * F(31) * F(15)
+        ...
+
+设：n,m为奇数，0 <= m <= n
+P(n, m) = n * (n-2) * ...* (m+2)
+T(n) = P(n, -1) = P(n, m) * P(m, -1)
+
+则
+T(999) = P(999, 499) * P(499, 249) * P(249, 125) * P(125, 61) * P(61, 31) * T(31)
+T(499) =               P(499, 249) * P(249, 125) * P(125, 61) * P(61, 31) * T(31)
+T(249) =                             P(249, 125) * P(125, 61) * P(61, 31) * T(31)
+T(125) =                                           P(125, 61) * P(61, 31) * T(31)
+T(61)  =                                                        P(61, 31) * T(31)
+T(31)  =                                                                    T(31)
+
+
+F(1000) = F(15) * Power(2, 983) * P(999, 499) * P(499, 249)^2 * P(249, 125)^3 * P(125, 61)^4 * P(61, 31)^5 * T(31)^6
+
+<b>同理：（其他例子）</b>
+F(100)  = T(99) * F(50) * power(50)
+        = T(99) * T(49) * F(25) * power(50+25)
+        = T(99) * T(49) * T(25) * F(12) * power(50+25+12)
+        = T(99) * T(49) * T(25) * T(11) * F(6) * power(50+25+12+6)
+        = T(99) * T(49) * T(25) * T(11) * T(5) * F(3) * power(50+25+12+6+3)
+        = TMap([99,49,25,11,5]) * F(3) * power(2, 96)
+
+F(133)  = T(133) * F(66) * power(66)
+        = T(133) * T(65) * F(33) * power(66+33)
+        = T(133) * T(65) * T(33) * F(16) * power(66+33+16)
+        = T(133) * T(65) * T(33) * T(15) * F(8) * power(66+33+16+8)
+        = TMap([133,65,33,15]) * F(8) * power(2, 123)
+            </pre>
+            <h3>结论：任意数的阶乘可化简为：</h3>
+            <pre style="font-size: 18px;">
+n! = a*b*c
+a = 2的整数次幂
+b = 一个已知的较小的数的阶乘
+c = 一个奇数数组的，减2的阶乘结果的乘积
+            </pre>
+        </li>
+        <li>
+            <h3>算法实现</h3>
+            <ol>
+                <i>debug: boolean，是否打印耗时信息</i>
+                <li>阶乘函数F(n, debug)
+                    <ul>
+                        <li>参数：n - 待求阶乘的整数</li>
+                        <li>
+                            函数体
+                            <pre>
+    let result = {
+        power: 0,
+        TList: [],
+        FTail: 1
+    }
+    let start = new Date().getTime()
+    FF(n, result)
+    let end = new Date().getTime()
+    debug && console.log('FF耗时：' + (end-start))
+    return Power(2, result.power, debug) * optimizeTMap(result.TList) * result.FTail
+                            </pre>
+                        </li>
+                    </ul>
+                </li>
+                <li>幂函数Power(base, exp, debug)
+                    <ul>
+                        <li>参数：base - 底数， exp - 幂</li>
+                        <li>
+                            函数体
+                            <pre>
+    let start = new Date().getTime()
+    let result = BigInt(1)
+    base = BigInt(base);
+    while(exp) {
+        if(exp % 2)
+            result *= BigInt(base);
+        base *= BigInt(base);
+        exp >>= 1;
+    }
+    let end = new Date().getTime()
+    debug && console.log('power耗时：' + (end-start))
+    return result;
+                            </pre>
+                        </li>
+                    </ul>
+                </li>
+                <li>TMap优化阶乘函数optimizeTMap(list)
+                    <ul>
+                        <li>参数：list - 奇数数组，计算结果为，数组的每个元素的减2阶乘，的结果，的乘积</li>
+                        <li>函数体
+                            <pre>
+    let start = new Date().getTime()
+    let cursor = list.length-1;
+    let res = list.map((v, index, o) => {
+        if(index === cursor) return Power(T(v), index + 1)
+        return Power(P(v, o[index+1]), index + 1)
+    }).reduce((pre, current) => pre * current, 1n)
+    let end = new Date().getTime()
+    debug && console.log('optimizeTMap耗时：' + (end-start))
+    return res
+                            </pre>
+                        </li>
+                    </ul>
+                </li>
+            </ol>
         </li>
     </ol>
 </body>
