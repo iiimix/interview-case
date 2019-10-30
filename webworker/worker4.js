@@ -5,7 +5,7 @@
  */
 onmessage = function(ev) {
     let {n, m} = ev.data;
-    console.log(n, m)
+    // console.log(n, m)
     n = BigInt(n);
     let s = 1n;
     while(n > m) {

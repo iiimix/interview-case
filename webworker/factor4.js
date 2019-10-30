@@ -31,7 +31,7 @@ async function F(n, debug) {
     FF(n, result)
     let end = new Date().getTime()
     debug && console.log('FF耗时：' + (end-start))
-    return Power(2, result.power, debug) * await multiWorkerTMap(result.TList) * result.FTail       // TMap优化方案
+    return Power(2, result.power, debug) * await multiWorkerTMap(result.TList, debug) * result.FTail       // TMap优化方案
 }
 
 function FF(n, result) {
@@ -50,11 +50,12 @@ function FF(n, result) {
 /**
  * 
  * @param {底数} base
- * @param {幂} exp 
+ * @param {幂} exp
+ * @returns {}
  */
 function Power(base, exp, debug) {
     let start = new Date().getTime()
-    let result = BigInt(1)
+    let result = 1n
     base = BigInt(base);
     while(exp) {
         if(exp % 2)
@@ -108,21 +109,16 @@ function P(n, m) {
     return base;
 }
 
-
-function workerP(n, m) {
-    return new Promise((resolve, reject) => {
-        resolve()
-    })
-}
-
 /**
  * 
  * @param {*} n 
  * @param {*} exp 
  */
-
 function promiseT(n, exp) {
-
+    // T(n) n一般不会太大，不调用worker计算
+    return new Promise((resolve) => {
+        resolve(Power(T(n), exp))
+    })
 }
 
 /**
@@ -135,7 +131,50 @@ function promiseT(n, exp) {
  * 
  */
 function promiseP(n, m, exp) {
-    
+    let key = `${n}_${m}_${exp}`
+    if(P_CACHE[key]){
+        return new Promise((resolve) => {
+            resolve(P_CACHE[key])
+        })
+    }
+        
+    if(n < 1e4) {
+        // 小于1w，不用分段计算
+        return new Promise((resolve) => {
+            P_CACHE[key] = Power(P(n, m), exp);
+            resolve(P_CACHE[key])
+        })
+    }
+    return new Promise((resolve, reject) => {
+        // 分段计算
+        let promiseList = []
+
+        let i = n - 1e4;
+        let start = n;
+        while(i > 1e4 && i > m) {
+            promiseList.push(createPromise(start, i))
+            start = i;
+            i -= 1e4;
+        }
+        // 末尾的数
+        promiseList.push(createPromise(start, m))
+        
+        Promise.all(promiseList).then(list => {
+            P_CACHE[key] = Power(list.reduce((pre, current) => pre * current, 1n), exp)
+            resolve(P_CACHE[key])
+        })
+    })
+}
+
+function createPromise(start, end) {
+    return new Promise((resolve, reject) => {
+        // 分段计算
+        let worker = new Worker('/worker4.js');
+        worker.postMessage({n: start, m: end})
+        worker.onmessage = function(res) {
+            resolve(res.data.total)
+        }
+    })
 }
 
 /**
@@ -189,25 +228,32 @@ function optimizeTMap(list) {
     return res
 }
 
+const TMap_CACHE = {}
 /**
  * 
  * @param {*} list 
  * 使用worker多线程计算大数P
  */
-function multiWorkerTMap(list) {
+function multiWorkerTMap(list, debug) {
     let start = new Date().getTime()
+    let key = list.join(',')
+    if(TMap_CACHE[key]) {
+        let end = new Date().getTime()
+        debug && console.log('multiWorkerTMap耗时：' + (end-start))
+        return TMap_CACHE[key]
+    }
     let cursor = list.length-1;
-    let temp = [];
     let promiseList = []
-    for (let i = 0; i < list.length; i++) {
-        let promise
+    for (let index = 0; index < list.length; index++) {
+        let promise, v = list[index];
+        
         if(index === cursor) {
             // 最后一项，直接求T(v)的长度次方
             // Power(T(v), index + 1)
             promise = promiseT(v, index + 1)
         } else {
-            // 其他项求P(n, m)
-            promise = promiseP(v, o[index+1], index + 1)
+            // 其他项求 Power(P(n, m), index+1)
+            promise = promiseP(v, list[index+1], index + 1)
         }
         promiseList.push(promise)
         
@@ -216,6 +262,7 @@ function multiWorkerTMap(list) {
     return new Promise((resolve, reject) => {
         Promise.all(promiseList).then(list => {
             let result = list.reduce((pre, current) => pre * current, 1n)
+            TMap_CACHE[key] = result
             let end = new Date().getTime()
             debug && console.log('multiWorkerTMap耗时：' + (end-start))
             resolve(result)
@@ -231,7 +278,7 @@ async function testWorkerFastFactor(n, debug) {
     if(debug) {
         let s = result2.toString();
         console.log(n+'的阶乘结果位数：'+ s.length) // 计算length耗时严重
-        console.log(n+'的阶乘：'+ s)
+        console.log(n+'的阶乘：'+ s.substring(0, 100))
         let end2 = new Date().getTime()
         console.log('输出打印耗时 ' + (end2 - start2) + ' ms')
     }
@@ -239,19 +286,12 @@ async function testWorkerFastFactor(n, debug) {
 }
 
 
-function sum(n) {
-    return new Promise(resolve => {
-        setTimeout(resolve(n+1), 100)
-    })
-}
-async function sub() {
-    let list = [1,2,3,4];
-    let res = list.map(async (v, index) => {
-
-        let a = await sum(v);
-        console.log('finish sum: ' + index)
-        return a * a
-    })
-    console.log('finish map')
-    return res;
-}
+/**
+ * 附阶乘的前100位
+ * 100000!  = 2824229407960347874293421578024535518477494926091224850578918086542977950901063017872551771413831163
+ * 200000!  = 1420225345470314404966946333682305976089965356746401622696224744629226778516099685650082553407879081
+ * 300000!  = 1477391531738039094292907474935614145499320519523744087957913843765052401351703476532418899010198829
+ * 500000!  = 1022801584651902365330917440571931337926286208272242484080831292070902404683458581381075725198198342..
+ * 1000000! = 8263931688331240062376646103172666291135347978963873045167775885563379611035645084446530511311463973
+ * 
+ */

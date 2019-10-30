@@ -34,7 +34,7 @@ async function testMultiWorkerCost(n, debug=false) {
     if(debug) {
         let s = result2.toString();
         console.log(n+'的阶乘结果位数：'+ s.length) // 计算length耗时严重
-        console.log(n+'的阶乘前30位：'+ s.substring(0,30))
+        console.log(n+'的阶乘前30位：'+ s.substring(0,100))
         let end2 = new Date().getTime()
         console.log('输出打印耗时 ' + (end2 - start2) + ' ms')
     }
