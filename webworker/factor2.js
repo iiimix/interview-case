@@ -92,7 +92,7 @@ function multiWorkerFactor(num, span){
             }
             let promise = new Promise((resolve, reject) => {
                 // 分段计算
-                let worker = new Worker('/work.js');
+                let worker = new Worker('/worker1.js');
                 worker.postMessage({n: start, m: end})
                 worker.onmessage = function(res) {
                     resolve(res.data.total)
@@ -176,7 +176,7 @@ function cacheWorkerFactor(num, span) {
 function singleWorkerFactor(num) {
     return new Promise((resolve, reject) => {
         //开启计算独立子线程，充分利用cpu资源
-        let worker = new Worker('/work.js');
+        let worker = new Worker('/worker1.js');
         worker.postMessage({n: 1, m: num})
         worker.onmessage = function(res) {
             resolve(res.data.total)
@@ -187,7 +187,7 @@ function singleWorkerFactor(num) {
 function createPromiseWorker(start, end) {
     return new Promise((resolve, reject) => {
         // 分段计算
-        let worker = new Worker('/work.js');
+        let worker = new Worker('/worker1.js');
         worker.postMessage({n: start, m: end})
         worker.onmessage = function(res) {
             resolve(res.data.total)
