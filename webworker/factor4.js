@@ -21,6 +21,8 @@ const F_CONST = {
     20: 2432902008176640000n
 }
 
+const GLOBAL_SPAN = 3e4;
+
 async function F(n, debug) {
     let result = {
         power: 0,
@@ -144,7 +146,7 @@ function promiseP(n, m, exp) {
         })
     }
         
-    if(n < 1e4) {
+    if(n < GLOBAL_SPAN) {
         // 小于1w，不用分段计算
         return new Promise((resolve) => {
             P_CACHE[key] = Power(P(n, m), exp);
@@ -157,12 +159,12 @@ function promiseP(n, m, exp) {
         // 分段计算
         let promiseList = []
 
-        let i = n - 1e4;
+        let i = n - GLOBAL_SPAN;
         let start = n;
-        while(i > 1e4 && i > m) {
+        while(i > GLOBAL_SPAN && i > m) {
             promiseList.push(createPromise(start, i))
             start = i;
-            i -= 1e4;
+            i -= GLOBAL_SPAN;
         }
         // 末尾的数
         promiseList.push(createPromise(start, m))
@@ -288,6 +290,7 @@ function multiWorkerTMap(list, debug) {
 async function testWorkerFastFactor(n, debug) {
     let start1 = new Date().getTime()
     let result2 = await F(n, true);
+    F_CONST[n] = result2;
     let start2 = new Date().getTime()
     if(debug) {
         let s = result2.toString();
