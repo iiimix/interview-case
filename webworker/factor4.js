@@ -116,7 +116,10 @@ function P(n, m) {
  */
 function promiseT(n, exp) {
     // T(n) n一般不会太大，不调用worker计算
+    let start = new Date().getTime()
     return new Promise((resolve) => {
+        let end = new Date().getTime()
+        console.log('promiseT耗时：' + (end-start))
         resolve(Power(T(n), exp))
     })
 }
@@ -131,9 +134,12 @@ function promiseT(n, exp) {
  * 
  */
 function promiseP(n, m, exp) {
+    // let beginTime = new Date().getTime()
     let key = `${n}_${m}_${exp}`
     if(P_CACHE[key]){
         return new Promise((resolve) => {
+            // let end = new Date().getTime()
+            // console.log('promiseP耗时：1.  ms ' + (end-beginTime))
             resolve(P_CACHE[key])
         })
     }
@@ -142,6 +148,8 @@ function promiseP(n, m, exp) {
         // 小于1w，不用分段计算
         return new Promise((resolve) => {
             P_CACHE[key] = Power(P(n, m), exp);
+            // let end = new Date().getTime()
+            // console.log('promiseP耗时：2.  ms ' + (end-beginTime))
             resolve(P_CACHE[key])
         })
     }
@@ -161,17 +169,23 @@ function promiseP(n, m, exp) {
         
         Promise.all(promiseList).then(list => {
             P_CACHE[key] = Power(list.reduce((pre, current) => pre * current, 1n), exp)
+            
+            // let end = new Date().getTime()
+            // console.log('promiseP耗时：3.  ms ' + (end-beginTime))
             resolve(P_CACHE[key])
         })
     })
 }
 
 function createPromise(start, end) {
+    let beginTime = new Date().getTime()
     return new Promise((resolve, reject) => {
         // 分段计算
         let worker = new Worker('/worker4.js');
         worker.postMessage({n: start, m: end})
         worker.onmessage = function(res) {
+            let finish = new Date().getTime()
+            console.log(`P(${start}, ${end})耗时：${finish-beginTime}ms`)
             resolve(res.data.total)
         }
     })

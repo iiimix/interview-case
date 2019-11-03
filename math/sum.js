@@ -57,7 +57,7 @@ function hugeMultiple(a, b) {
 }
 
 function sumApply(list) {
-    factor = list;
+    let factor = list;
     if(typeof list === 'string') {
         factor = Array.prototype.slice.call(arguments)
     }
