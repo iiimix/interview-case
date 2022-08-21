@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <script>
+    var a = function() {
+      this.b = 1;
+    }
+    var c = new a();
+    a.prototype.b = 9;
+
+    var b = 7; // 定义b，即window.b = 7;
+    a(); // 此时a中的this===window
+    console.log(b);
+    console.log(c.b);
+
+  </script>
+</body>
+</html>

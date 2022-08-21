@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+<body>
+  <script>
+    // 以下代码输出结果
+    var a = 1;
+    function foo() {
+      var b = 2;
+      // label1
+      console.log(b + this.a);
+      console.log(b+a);
+    }
+    const foo1 = () => {
+      var b = 2;
+      console.log(b + this.a);
+      console.log(b+a);
+    }
+
+    function foo2() {
+      // this.a = 4;
+      var a = 4;
+      console.log(this);
+      // 显式绑定
+      // foo.bind(this)(); // label1输出 b + obj.a = 4
+      // 箭头函数
+      let foo = () => {
+        var b = 2;
+        console.log(b + this.a); // 输出 b + obj.a =3
+        console.log(b+a);
+      }
+      // 闭包函数
+      // function foo() {
+      //   var b = 2;
+      //   console.log(b + this.a); // 输出 b + window.a =3
+      //   console.log(b+a);
+      // }
+      // (() => {
+      //   foo(); // label1输出 b + window.a = 3
+      // })()
+
+      
+      foo();
+      foo1();
+    }
+    const obj = {
+      a: 2,
+      foo2,
+    }
+    // foo2();
+    obj.foo2();
+    console.log(obj);
+
+
+    // 函数里面调用函数，foo()，非xxx.foo(); 匿名调用方
+    // 除非使用了bind显式绑定，闭包函数+箭头函数，否则函数执行的this始终指向顶层window对象
+
+
+  </script>
+</body>
+</html>
